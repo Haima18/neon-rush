@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#070914">
+  <meta name="description" content="NEON RUSH — survive the grid.">
+  <title>NEON RUSH // AFTERHOURS</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="page-glow"></div>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="NEON RUSH home">
+        <span class="brand-mark">A<span>/</span>H</span>
+        <span class="brand-copy">
+          <strong>AFTER<span>HOURS</span></strong>
+          <small>INTERACTIVE ARCADE</small>
+        </span>
+      </a>
+
+      <div class="topbar-right">
+        <span class="live-indicator"><i></i> SYSTEM ONLINE</span>
+        <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false">
+          SOUND <span id="soundLabel">ON</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="intro">
+      <div class="eyebrow"><span>01</span> / ARCADE PROTOCOL</div>
+      <h1>NEON <span>RUSH</span><i>.</i></h1>
+      <p class="intro-copy">The grid is unstable. Keep moving. Stay alive.</p>
+    </section>
+
+    <section class="game-layout">
+      <div class="game-main">
+        <div class="game-toolbar">
+          <div class="mode-label"><span class="status-dot"></span> SURVIVAL MODE</div>
+          <div class="toolbar-right">
+            <span id="levelName">FIRST CONTACT</span>
+            <button id="pauseButton" type="button" class="pause-button" disabled>Ⅱ PAUSE</button>
+          </div>
+        </div>
+
+        <div class="canvas-wrap">
+          <canvas id="gameCanvas" width="800" height="450"
+            aria-label="NEON RUSH game area. Use arrow keys or WASD to move."></canvas>
+
+          <div class="scanline" aria-hidden="true"></div>
+
+          <div class="overlay" id="overlay">
+            <div class="overlay-content">
+              <div class="overlay-tag" id="overlayTag">AFTERHOURS PRESENTS</div>
+              <h2 id="overlayTitle">ENTER THE GRID<span>.</span></h2>
+              <p id="overlayText">
+                Dodge hostile signals. Collect energy. Survive all ten levels.
+              </p>
+              <button id="startButton" type="button">INITIALIZE RUN ↗</button>
+              <div class="overlay-foot">10 LEVELS <span>·</span> 3 LIVES <span>·</span> ONE GRID</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="level-track">
+          <div class="track-heading">
+            <span>LEVEL PROGRESS</span>
+            <span id="progressText">LEVEL 01 / 10</span>
+          </div>
+          <div class="track-bar">
+            <div class="track-fill" id="levelProgress"></div>
+          </div>
+        </div>
+
+        <div class="game-footer">
+          <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> MOVE</span>
+          <span><kbd>ESC</kbd> / <kbd>P</kbd> PAUSE</span>
+          <span><kbd>M</kbd> SOUND</span>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <section class="panel score-panel">
+          <div class="panel-label">CURRENT SCORE <span>01</span></div>
+          <div class="big-number" id="score">0000</div>
+          <div class="panel-divider"></div>
+          <div class="stat-row">
+            <span>PERSONAL BEST</span>
+            <strong id="best">0000</strong>
+          </div>
+          <div class="stat-row">
+            <span>LEVEL</span>
+            <strong id="level">01</strong>
+          </div>
+          <div class="stat-row">
+            <span>INTEGRITY</span>
+            <strong id="lives" class="lives-value">♥♥♥</strong>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-label">ACTIVE SYSTEMS <span>02</span></div>
+          <div class="power-status" id="powerStatus">NONE</div>
+          <p class="panel-note">Collect glowing power-ups to activate temporary abilities.</p>
+        </section>
+
+        <section class="panel objective-panel">
+          <div class="panel-label">MISSION DATA <span>03</span></div>
+          <div class="objective-item">
+            <span class="objective-icon cyan-icon">◇</span>
+            <div><strong>ENERGY ORBS</strong><small>Collect to score points</small></div>
+          </div>
+          <div class="objective-item">
+            <span class="objective-icon pink-icon">◆</span>
+            <div><strong>HOSTILE SIGNALS</strong><small>Touching them costs a life</small></div>
+          </div>
+          <div class="objective-item">
+            <span class="objective-icon purple-icon">✦</span>
+            <div><strong>POWER-UPS</strong><small>Shield · Slow-mo · Extra life</small></div>
+          </div>
+        </section>
+
+        <div class="side-note">
+          <span class="side-note-line"></span>
+          <p>NO SHORTCUTS.<br><strong>JUST SURVIVE.</strong></p>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="page-footer">
+      <span>AFTERHOURS <span class="footer-dim">/ STUDENT ARCADE PROJECT</span></span>
+      <span>DESIGNED TO OUTLAST THE GRID <span class="footer-cyan">✳</span></span>
+    </footer>
+  </main>
+
+  <script src="levels.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

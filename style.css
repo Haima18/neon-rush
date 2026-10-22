@@ -1,0 +1,231 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #070914;
+  --panel: #101426;
+  --cyan: #4dfcff;
+  --pink: #ff3cac;
+  --text: #f1f5ff;
+  --muted: #8992b5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 28px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at 50% 0%, #202047 0%, transparent 55%),
+    var(--bg);
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.game-shell {
+  width: min(100%, 1000px);
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.brand {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  letter-spacing: 2px;
+  font-size: 16px;
+}
+
+.brand span {
+  color: var(--cyan);
+  margin-left: 5px;
+}
+
+.status {
+  font-size: 12px;
+  color: var(--cyan);
+  letter-spacing: 2px;
+}
+
+.intro {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.eyebrow {
+  color: var(--pink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 4px;
+}
+
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(38px, 7vw, 72px);
+  line-height: 1.1;
+  margin: 12px 0;
+  letter-spacing: 5px;
+  text-shadow: 0 0 25px #4dfcff30;
+}
+
+h1 span {
+  color: var(--cyan);
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.stat {
+  background: #111629cc;
+  border: 1px solid #303858;
+  padding: 13px 18px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat span {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+
+.stat strong {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 22px;
+  color: var(--cyan);
+}
+
+.arena {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #384566;
+  border-radius: 12px;
+  background: #080c1c;
+  box-shadow: 0 0 35px #4dfcff0c, 0 20px 60px #0007;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  background: #070914c9;
+  backdrop-filter: blur(5px);
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(22px, 4vw, 36px);
+  margin: 12px 0;
+}
+
+.overlay p:not(.eyebrow) {
+  max-width: 440px;
+  color: #a8b2d0;
+  line-height: 1.6;
+}
+
+button {
+  margin-top: 18px;
+  padding: 14px 28px;
+  border: 0;
+  border-radius: 5px;
+  background: var(--cyan);
+  color: #071018;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px #4dfcff65;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 17px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.cyan {
+  color: var(--cyan);
+}
+
+.pink {
+  color: var(--pink);
+}
+
+.credit {
+  margin-top: 30px;
+  text-align: center;
+  color: #535d7c;
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 18px 10px;
+  }
+
+  .topbar {
+    margin-bottom: 22px;
+  }
+
+  .stat {
+    padding: 10px;
+  }
+
+  .stat strong {
+    font-size: 16px;
+  }
+
+  .controls {
+    justify-content: center;
+  }
+}
