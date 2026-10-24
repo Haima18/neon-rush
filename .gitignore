@@ -1,0 +1,27 @@
+# Neon Rush — local development notes
+# The game runs as static files; no build step or dependencies are required.
+
+# OS and editor noise
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs and local test artifacts
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
+test-results/
+playwright-report/
+
+# Optional local tooling artefacts (not needed by the game)
+node_modules/
+dist/
+.cache/

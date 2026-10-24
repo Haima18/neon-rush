@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="NEON RUSH — a cyberpunk arcade survival game. Dodge the grid, chain energy, unleash Nova Pulse, and break through five breach zones.">
+  <meta name="theme-color" content="#070812">
+  <meta name="color-scheme" content="dark">
+  <title>NEON RUSH — Survive the Grid</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+  <div class="app" id="app">
+    <canvas id="scene" class="scene" aria-hidden="true"></canvas>
+
+    <div class="scene-fx" aria-hidden="true">
+      <div class="vignette"></div>
+      <div class="scanlines"></div>
+      <div class="damage-flash" id="damage-flash"></div>
+      <div class="pulse-flash" id="pulse-flash"></div>
+    </div>
+
+    <!-- ============ IN-GAME HUD ============ -->
+    <header class="hud" id="hud" aria-label="Game heads-up display">
+      <div class="hud__top">
+        <div class="hud__level">
+          <span class="hud__eyebrow"><span id="hud-level-index">LEVEL 01</span><span class="hud__divider">/</span><span id="hud-wave">WAVE 1</span></span>
+          <span class="hud__level-name" id="hud-level-name">FIRST CONTACT</span>
+        </div>
+
+        <div class="hud__score">
+          <span class="hud__eyebrow">SCORE</span>
+          <span class="hud__score-value" id="hud-score">0</span>
+          <span class="hud__best">BEST <span id="hud-best">0</span></span>
+        </div>
+
+        <div class="hud__actions">
+          <button class="icon-btn" type="button" data-action="sound-toggle" aria-label="Toggle sound" aria-pressed="true">
+            <svg class="icon icon--sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+            <svg class="icon icon--sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="m16 9 5 6M21 9l-5 6"/></svg>
+          </button>
+          <button class="icon-btn" type="button" data-action="pause" aria-label="Pause game">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke-width="2.6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="hud__bottom">
+        <div class="hud__progress">
+          <div class="hud__progress-top">
+            <span id="hud-objective">SURVIVE 30s</span>
+            <span class="hud__timer"><span id="hud-timer">00:00</span> / <span id="hud-duration">00:30</span></span>
+          </div>
+          <div class="meter" role="progressbar" aria-label="Level progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="hud-progress-bar">
+            <span class="meter__fill" id="hud-progress-fill"></span>
+          </div>
+        </div>
+
+        <div class="hud__stats">
+          <div class="hud-stat">
+            <span class="hud__eyebrow">LIVES</span>
+            <div class="lives" id="hud-lives" aria-label="3 lives"></div>
+          </div>
+          <div class="hud-stat">
+            <span class="hud__eyebrow">ENERGY</span>
+            <span class="hud-stat__value"><span class="diamond diamond--gold" aria-hidden="true"></span><span id="hud-energy">0</span></span>
+          </div>
+          <div class="hud-stat hud-stat--dash">
+            <span class="hud__eyebrow">DASH</span>
+            <div class="dash-meter" id="hud-dash" aria-label="Dash ready"><span id="hud-dash-fill"></span></div>
+          </div>
+          <div class="hud-stat hud-stat--pulse">
+            <span class="hud__eyebrow">PULSE <kbd class="hud-key">E</kbd></span>
+            <div class="pulse-pips" id="hud-pulse" aria-label="Nova Pulse: 0 of 6 cells charged">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="combo-chip" id="hud-combo" hidden>
+            <span class="combo-chip__label">CHAIN</span>
+            <strong id="hud-combo-value">x1.1</strong>
+            <span class="combo-chip__track" aria-hidden="true"><span id="hud-combo-fill"></span></span>
+          </div>
+          <div class="powerup-chip" id="hud-powerup" hidden>
+            <span class="powerup-chip__dot"></span>
+            <span class="powerup-chip__name" id="hud-powerup-name">SHIELD</span>
+            <span class="powerup-chip__time" id="hud-powerup-time">6.0</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ SCREENS ============ -->
+    <main class="screens" id="screens">
+      <!-- MAIN MENU -->
+      <section class="screen screen--menu is-active" data-screen="menu" aria-labelledby="menu-heading">
+        <div class="menu-grid">
+          <div class="hero">
+            <p class="hero__kicker"><span class="status-dot" aria-hidden="true"></span> GRID LINK ESTABLISHED</p>
+            <h1 class="logo" id="menu-heading" aria-label="NEON RUSH">
+              <span class="logo__text" data-text="NEON" aria-hidden="true">NEON</span>
+              <span class="logo__text" data-text="RUSH" aria-hidden="true">RUSH</span>
+              <span class="logo__tagline">SURVIVE THE GRID.</span>
+            </h1>
+            <p class="hero__lede">The city lattice is collapsing. Fly the last light through five escalating breach zones, chain volatile energy, unleash Nova Pulse, and carve your name into the record.</p>
+            <div class="hero__meta">
+              <div class="meta-card">
+                <span class="meta-card__label">PERSONAL BEST</span>
+                <strong class="meta-card__value" id="menu-best">0</strong>
+              </div>
+              <div class="meta-card">
+                <span class="meta-card__label">ZONES ONLINE</span>
+                <strong class="meta-card__value"><span id="menu-levels">1</span><small>/ 5</small></strong>
+              </div>
+            </div>
+            <p class="hero__hint"><kbd>WASD</kbd> / <kbd>ARROWS</kbd> FLY <span aria-hidden="true">·</span> <kbd>SPACE</kbd> DASH</p>
+          </div>
+
+          <nav class="menu-panel" aria-label="Main menu">
+            <span class="menu-panel__eyebrow">ARCADE TERMINAL <span>//</span> 01</span>
+            <button class="btn btn--primary" type="button" data-action="play">
+              <span class="btn__index">01</span>
+              <span class="btn__label">PLAY<small>BEGIN RUN</small></span>
+              <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+            </button>
+            <button class="btn" type="button" data-action="levels">
+              <span class="btn__index">02</span>
+              <span class="btn__label">LEVEL SELECT<small>CHOOSE A BREACH ZONE</small></span>
+              <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+            </button>
+            <button class="btn" type="button" data-action="howto">
+              <span class="btn__index">03</span>
+              <span class="btn__label">HOW TO PLAY<small>CONTROLS &amp; SYSTEMS</small></span>
+              <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+            </button>
+            <button class="btn" type="button" data-action="settings">
+              <span class="btn__index">04</span>
+              <span class="btn__label">SETTINGS<small>AUDIO &amp; ACCESSIBILITY</small></span>
+              <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+            </button>
+            <div class="menu-panel__status">
+              <span><span class="status-dot status-dot--gold" aria-hidden="true"></span> SYSTEM STABLE</span>
+              <span>LOCAL RECORD STORAGE</span>
+            </div>
+          </nav>
+        </div>
+
+        <footer class="menu-footer">
+          <button class="sound-toggle" type="button" data-action="sound-toggle" aria-label="Toggle sound" aria-pressed="true">
+            <svg class="icon icon--sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+            <svg class="icon icon--sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="m16 9 5 6M21 9l-5 6"/></svg>
+            <span class="sound-label">SOUND ON</span>
+          </button>
+          <button class="music-status" id="music-status" type="button" data-action="music-toggle"
+            aria-pressed="true" aria-label="Adaptive synth score: Neon Drive, on">
+            <span class="equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="music-status__copy">NEON DRIVE <span aria-hidden="true">//</span> ADAPTIVE SCORE</span>
+            <span class="music-status__state" id="music-state" aria-hidden="true">ON</span>
+          </button>
+          <span class="menu-footer__note menu-footer__note--right">SURVIVE. COLLECT. BREACH.</span>
+        </footer>
+      </section>
+
+      <!-- LEVEL SELECT -->
+      <section class="screen" data-screen="levels" aria-labelledby="levels-heading" aria-hidden="true" inert>
+        <div class="panel panel--wide">
+          <header class="panel__head">
+            <div>
+              <p class="eyebrow">RUN CONFIGURATION</p>
+              <h2 class="panel__title" id="levels-heading">LEVEL SELECT</h2>
+            </div>
+            <button class="btn btn--ghost btn--back" type="button" data-action="back">
+              <span aria-hidden="true">&#8592;</span> BACK
+            </button>
+          </header>
+          <p class="panel__lede">Deploy directly into any breach zone you have cleared. A deployment starts a fresh run with three lives and a clean score.</p>
+          <div class="level-grid" id="level-grid"></div>
+          <p class="panel__footnote">Clear zones in sequence to unlock the next breach. Your unlocked zones and personal best are stored on this device.</p>
+        </div>
+      </section>
+
+      <!-- HOW TO PLAY -->
+      <section class="screen" data-screen="howto" aria-labelledby="howto-heading" aria-hidden="true" inert>
+        <div class="panel panel--wide">
+          <header class="panel__head">
+            <div>
+              <p class="eyebrow">PILOT BRIEFING</p>
+              <h2 class="panel__title" id="howto-heading">HOW TO PLAY</h2>
+            </div>
+            <button class="btn btn--ghost btn--back" type="button" data-action="back">
+              <span aria-hidden="true">&#8592;</span> BACK
+            </button>
+          </header>
+
+          <div class="howto-grid">
+            <section class="howto-block" aria-labelledby="howto-controls">
+              <h3 id="howto-controls">FLIGHT CONTROLS</h3>
+              <div class="control-row">
+                <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div>
+                <div><strong>MOVE</strong><span>Arrow keys also fly.</span></div>
+              </div>
+              <div class="control-row">
+                <div class="keys"><kbd class="kbd--wide">SPACE</kbd></div>
+                <div><strong>DASH</strong><span>0.25s phase shield. Shreds hazards you dash through.</span></div>
+              </div>
+              <div class="control-row">
+                <div class="keys"><kbd>E</kbd><kbd>SHIFT</kbd></div>
+                <div><strong>NOVA PULSE</strong><span>Spend 6 charges to clear nearby hazards.</span></div>
+              </div>
+              <div class="control-row">
+                <div class="keys"><kbd>P</kbd><kbd>ESC</kbd></div>
+                <div><strong>PAUSE</strong><span>Freezes the grid.</span></div>
+              </div>
+              <div class="control-row">
+                <div class="keys"><kbd class="kbd--wide">TOUCH</kbd></div>
+                <div><strong>MOBILE</strong><span>Drag the flight pad. Tap DASH.</span></div>
+              </div>
+            </section>
+
+            <section class="howto-block" aria-labelledby="howto-objective">
+              <h3 id="howto-objective">RUN OBJECTIVE</h3>
+              <p>Survive each breach zone without losing all three lives. Damage destroys the hazard that hit you and grants a brief invulnerability window, so a single mistake can never chain into multiple hits.</p>
+              <ul class="check-list">
+                <li><span>01</span> Dodge magenta geometry and homing seekers.</li>
+                <li><span>02</span> Chain gold orbs within 3.4s to raise your score multiplier.</li>
+                <li><span>03</span> Dash through hazards to phase-shred them for bonus points.</li>
+                <li><span>04</span> Bank six orb charges, then release Nova Pulse with E.</li>
+                <li><span>05</span> Clear all five zones to conquer the grid.</li>
+                <li><span>06</span> Clearing a zone repairs one life (max 3).</li>
+              </ul>
+            </section>
+
+            <section class="howto-block howto-block--full" aria-labelledby="howto-powerups">
+              <h3 id="howto-powerups">TEMPORARY POWER-UPS</h3>
+              <div class="powerup-legend">
+                <div class="powerup-card" data-powerup="shield">
+                  <span class="powerup-card__glyph">S</span>
+                  <div><strong>SHIELD</strong><span>Absorbs one collision, then breaks. Lasts up to 7s.</span></div>
+                </div>
+                <div class="powerup-card" data-powerup="slow">
+                  <span class="powerup-card__glyph">T</span>
+                  <div><strong>TIME DILATION</strong><span>Hazards move at 55% speed for 6s.</span></div>
+                </div>
+                <div class="powerup-card" data-powerup="multiplier">
+                  <span class="powerup-card__glyph">&#215;2</span>
+                  <div><strong>SCORE SURGE</strong><span>Doubles survival and orb score for 8s.</span></div>
+                </div>
+                <div class="powerup-card" data-powerup="magnet">
+                  <span class="powerup-card__glyph">M</span>
+                  <div><strong>MAGNET</strong><span>Pulls nearby energy orbs toward your hull for 8s.</span></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="howto-block howto-block--full" aria-labelledby="howto-tips">
+              <h3 id="howto-tips">FLIGHT NOTES</h3>
+              <div class="tips">
+                <p><strong>Read the gaps.</strong> Barriers are never full-width. Watch their rotation and commit early; seekers can be out-turned.</p>
+                <p><strong>Dash with intent.</strong> Its phase window is 0.25s — long enough to shred a hazard, too short to live in.</p>
+                <p><strong>Stack the chain.</strong> Every quick orb pickup lifts the multiplier. Magnet and Score Surge make chains explode.</p>
+              </div>
+              <button class="btn btn--primary btn--inline" type="button" data-action="play">
+                <span class="btn__label">PLAY NOW<small>ENTER THE GRID</small></span>
+                <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+              </button>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="screen" data-screen="settings" aria-labelledby="settings-heading" aria-hidden="true" inert>
+        <div class="panel panel--medium">
+          <header class="panel__head">
+            <div>
+              <p class="eyebrow">SYSTEM PREFERENCES</p>
+              <h2 class="panel__title" id="settings-heading">SETTINGS</h2>
+            </div>
+            <button class="btn btn--ghost btn--back" type="button" data-action="back">
+              <span aria-hidden="true">&#8592;</span> BACK
+            </button>
+          </header>
+
+          <div class="settings-list">
+            <label class="setting-row" for="setting-sound">
+              <span class="setting-row__copy">
+                <strong>SOUND</strong>
+                <small>Master audio for the score and effects</small>
+              </span>
+              <input class="switch-input" type="checkbox" id="setting-sound">
+              <span class="switch" aria-hidden="true"></span>
+            </label>
+
+            <label class="setting-row" for="setting-music">
+              <span class="setting-row__copy">
+                <strong>ADAPTIVE MUSIC</strong>
+                <small>Procedural synthwave score that reacts to the zone</small>
+              </span>
+              <input class="switch-input" type="checkbox" id="setting-music">
+              <span class="switch" aria-hidden="true"></span>
+            </label>
+
+            <div class="setting-row setting-row--slider">
+              <label class="setting-row__copy" for="setting-volume">
+                <strong>MASTER VOLUME</strong>
+                <small>Applies immediately</small>
+              </label>
+              <div class="slider-wrap">
+                <input type="range" id="setting-volume" min="0" max="100" step="1" value="70" aria-describedby="volume-value">
+                <output id="volume-value" for="setting-volume">70%</output>
+              </div>
+            </div>
+
+            <label class="setting-row" for="setting-shake">
+              <span class="setting-row__copy">
+                <strong>REDUCED SCREEN SHAKE</strong>
+                <small>Uses a gentler impact response</small>
+              </span>
+              <input class="switch-input" type="checkbox" id="setting-shake">
+              <span class="switch" aria-hidden="true"></span>
+            </label>
+
+            <label class="setting-row" for="setting-fx">
+              <span class="setting-row__copy">
+                <strong>REDUCED VISUAL EFFECTS</strong>
+                <small>Fewer particles and softer glow</small>
+              </span>
+              <input class="switch-input" type="checkbox" id="setting-fx">
+              <span class="switch" aria-hidden="true"></span>
+            </label>
+          </div>
+
+          <div class="settings-danger">
+            <div>
+              <strong>RESET PROGRESS</strong>
+              <span>Clears your best score and unlocked zones. Preferences are kept.</span>
+            </div>
+            <button class="btn btn--danger btn--small" type="button" data-action="reset-request">RESET</button>
+          </div>
+          <div class="confirm-box" id="reset-confirm" hidden>
+            <p>Erase all score and zone progress? This cannot be undone.</p>
+            <div class="confirm-box__actions">
+              <button class="btn btn--danger btn--small" type="button" data-action="reset-confirm">ERASE PROGRESS</button>
+              <button class="btn btn--ghost btn--small" type="button" data-action="reset-cancel">CANCEL</button>
+            </div>
+          </div>
+
+          <div class="settings-foot">
+            <span>Settings are stored locally in this browser.</span>
+            <button class="sound-toggle" type="button" data-action="sound-toggle" aria-label="Toggle sound" aria-pressed="true">
+              <svg class="icon icon--sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+              <svg class="icon icon--sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="m16 9 5 6M21 9l-5 6"/></svg>
+              <span class="sound-label">SOUND ON</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAUSE -->
+      <section class="screen screen--overlay" data-screen="pause" aria-labelledby="pause-heading" aria-hidden="true" inert>
+        <div class="panel panel--compact">
+          <p class="eyebrow">SIMULATION HALTED</p>
+          <h2 class="panel__title panel__title--xl" id="pause-heading">PAUSED</h2>
+          <div class="pause-readout">
+            <div><span>SCORE</span><strong id="pause-score">0</strong></div>
+            <div><span>ZONE</span><strong id="pause-level">01</strong></div>
+            <div><span>TIME</span><strong id="pause-time">00:00</strong></div>
+          </div>
+          <div class="btn-stack">
+            <button class="btn btn--primary" type="button" data-action="resume">
+              <span class="btn__label">RESUME<small>RE-ENTER THE GRID</small></span>
+              <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+            </button>
+            <button class="btn" type="button" data-action="restart">
+              <span class="btn__label">RESTART RUN<small>FROM ZONE 01</small></span>
+            </button>
+            <button class="btn btn--ghost" type="button" data-action="menu">
+              <span class="btn__label">MAIN MENU</span>
+            </button>
+          </div>
+          <button class="sound-toggle sound-toggle--wide" type="button" data-action="sound-toggle" aria-label="Toggle sound" aria-pressed="true">
+            <svg class="icon icon--sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+            <svg class="icon icon--sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="m16 9 5 6M21 9l-5 6"/></svg>
+            <span class="sound-label">SOUND ON</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- LEVEL COMPLETE -->
+      <section class="screen screen--overlay" data-screen="levelcomplete" aria-labelledby="levelcomplete-heading" aria-hidden="true" inert>
+        <div class="panel panel--compact panel--success">
+          <p class="eyebrow">BREACH ZONE CLEARED</p>
+          <h2 class="panel__title panel__title--xl" id="levelcomplete-heading">ZONE SECURED</h2>
+          <p class="panel__lede" id="levelcomplete-name">NEXT: OVERDRIVE</p>
+          <div class="stat-grid">
+            <div class="stat-cell"><span>SCORE</span><strong id="lc-score">0</strong></div>
+            <div class="stat-cell"><span>ZONE TIME</span><strong id="lc-time">00:00</strong></div>
+            <div class="stat-cell"><span>ENERGY</span><strong id="lc-energy">0</strong></div>
+            <div class="stat-cell"><span>LIVES</span><strong id="lc-lives">3</strong></div>
+          </div>
+          <button class="btn btn--primary" type="button" data-action="continue-level">
+            <span class="btn__label">CONTINUE<small id="lc-next-label">ENTER ZONE 02</small></span>
+            <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+          </button>
+          <div class="auto-advance" aria-hidden="true"><span id="auto-advance-fill"></span></div>
+          <p class="auto-advance__label">AUTO-ADVANCE IN <span id="auto-advance-time">3</span>s</p>
+        </div>
+      </section>
+
+      <!-- GAME OVER -->
+      <section class="screen screen--overlay" data-screen="gameover" aria-labelledby="gameover-heading" aria-hidden="true" inert>
+        <div class="panel panel--compact panel--danger">
+          <p class="eyebrow">SIGNAL LOST <span aria-hidden="true">//</span> RUN TERMINATED</p>
+          <h2 class="panel__title panel__title--xl" id="gameover-heading">GAME OVER</h2>
+          <p class="panel__lede">The grid claimed another pilot. Your telemetry has been recorded.</p>
+          <div class="record-badge" id="gameover-record" hidden>NEW PERSONAL BEST</div>
+          <div class="stat-grid">
+            <div class="stat-cell"><span>FINAL SCORE</span><strong id="go-score">0</strong></div>
+            <div class="stat-cell"><span>BEST SCORE</span><strong id="go-best">0</strong></div>
+            <div class="stat-cell"><span>HIGHEST ZONE</span><strong id="go-level">01</strong></div>
+            <div class="stat-cell"><span>ENERGY</span><strong id="go-energy">0</strong></div>
+            <div class="stat-cell"><span>SURVIVAL</span><strong id="go-time">00:00</strong></div>
+            <div class="stat-cell"><span>ORBS</span><strong id="go-orbs">0</strong></div>
+          </div>
+          <div class="btn-stack btn-stack--row">
+            <button class="btn btn--primary" type="button" data-action="retry">
+              <span class="btn__label">RETRY<small>NEW RUN</small></span>
+            </button>
+            <button class="btn btn--ghost" type="button" data-action="menu">
+              <span class="btn__label">MAIN MENU</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- VICTORY -->
+      <section class="screen screen--overlay" data-screen="victory" aria-labelledby="victory-heading" aria-hidden="true" inert>
+        <div class="panel panel--compact panel--victory">
+          <div class="victory-mark" aria-hidden="true">
+            <span class="victory-mark__ring"></span>
+            <span class="victory-mark__core"></span>
+          </div>
+          <p class="eyebrow">ALL FIVE ZONES CLEARED</p>
+          <h2 class="panel__title panel__title--xl" id="victory-heading">VICTORY</h2>
+          <p class="victory-subtitle">GRID CONQUERED</p>
+          <div class="record-badge record-badge--gold" id="victory-record" hidden>NEW PERSONAL BEST</div>
+          <div class="stat-grid">
+            <div class="stat-cell"><span>FINAL SCORE</span><strong id="v-score">0</strong></div>
+            <div class="stat-cell"><span>BEST SCORE</span><strong id="v-best">0</strong></div>
+            <div class="stat-cell"><span>COMPLETION TIME</span><strong id="v-time">00:00</strong></div>
+            <div class="stat-cell"><span>ENERGY</span><strong id="v-energy">0</strong></div>
+            <div class="stat-cell"><span>ZONES</span><strong>5 / 5</strong></div>
+            <div class="stat-cell"><span>ORBS</span><strong id="v-orbs">0</strong></div>
+          </div>
+          <div class="btn-stack btn-stack--row">
+            <button class="btn btn--primary" type="button" data-action="replay">
+              <span class="btn__label">PLAY AGAIN<small>NEW RUN</small></span>
+            </button>
+            <button class="btn btn--ghost" type="button" data-action="menu">
+              <span class="btn__label">MAIN MENU</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ OVERLAYS ============ -->
+    <div class="banner" id="banner" role="status" aria-live="polite">
+      <span class="banner__kicker" id="banner-kicker">ZONE 01</span>
+      <strong class="banner__title" id="banner-title">FIRST CONTACT</strong>
+      <span class="banner__sub" id="banner-sub">SURVIVE 30 SECONDS</span>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- Mobile controls -->
+    <div class="touch-controls" id="touch-controls" aria-label="Touch controls">
+      <div class="joystick" id="joystick" aria-label="Movement pad. Drag to fly.">
+        <span class="joystick__cross" aria-hidden="true"></span>
+        <span class="joystick__knob" id="joystick-knob"></span>
+      </div>
+      <div class="touch-actions">
+        <button class="pulse-btn" id="pulse-btn" type="button" data-action="pulse" aria-label="Nova Pulse: 0 of 6 cells charged" aria-keyshortcuts="E Shift">
+          <span class="pulse-btn__ring" id="pulse-btn-ring"></span>
+          <span class="pulse-btn__label">PULSE</span>
+          <span class="pulse-btn__sub" id="pulse-btn-sub">0/6</span>
+        </button>
+        <button class="dash-btn" id="dash-btn" type="button" aria-label="Dash" aria-keyshortcuts="Space">
+          <span class="dash-btn__ring" id="dash-btn-ring"></span>
+          <span class="dash-btn__label">DASH</span>
+          <span class="dash-btn__sub" id="dash-btn-sub">READY</span>
+        </button>
+      </div>
+    </div>
+
+    <noscript>
+      <div class="noscript">NEON RUSH requires JavaScript to run. Please enable JavaScript and reload the page.</div>
+    </noscript>
+  </div>
+
+  <script src="js/config.js?v=2"></script>
+  <script src="js/audio.js?v=2"></script>
+  <script src="js/environment.js?v=2"></script>
+  <script src="js/game.js?v=2"></script>
+</body>
+</html>

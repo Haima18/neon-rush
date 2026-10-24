@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Neon Rush">
+  <defs>
+    <linearGradient id="hull" x1="32" y1="6" x2="32" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F4F7FF"/>
+      <stop offset="0.36" stop-color="#00F5FF"/>
+      <stop offset="1" stop-color="#8B5CFF"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="10" y1="32" x2="54" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00F5FF"/>
+      <stop offset="1" stop-color="#FF2BD6"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#070812"/>
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="url(#edge)" stroke-opacity="0.5"/>
+  <path d="M32 7 48 49 32 40 16 49Z" fill="url(#hull)" stroke="#F4F7FF" stroke-opacity="0.55" stroke-width="1"/>
+  <path d="M32 15 39 38 32 34Z" fill="#F4F7FF" fill-opacity="0.9"/>
+  <circle cx="32" cy="27" r="3.6" fill="#FF2BD6"/>
+  <circle cx="32" cy="27" r="1.5" fill="#F4F7FF"/>
+  <path d="M14 51h13M37 51h13" stroke="#FF2BD6" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+</svg>
